@@ -1,0 +1,11 @@
+.venv
+.git
+.env
+__pycache__
+*.pyc
+pgdata
+.idea
+.vscode
+README*.md
+make_readme.py
+test_*.py
