@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Optional, Set
 from sqlalchemy import func, select, update
-from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models.offer import SeenOffer
 
@@ -83,7 +83,7 @@ async def bulk_save_offers(
             )
 
         statement = (
-            pg_insert(SeenOffer)
+            sqlite_insert(SeenOffer)
             .values(records)
             .on_conflict_do_nothing(
                 index_elements=["link_id", "olx_offer_id"]

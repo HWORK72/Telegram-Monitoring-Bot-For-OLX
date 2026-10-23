@@ -1,12 +1,25 @@
+import sys
 from functools import lru_cache
+from pathlib import Path
 from typing import List, Optional, Union
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def get_base_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
+BASE_DIR: Path = get_base_dir()
+ENV_FILE_PATH: Path = BASE_DIR / ".env"
+DB_FILE_PATH: Path = BASE_DIR / "olx_monitor.db"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(ENV_FILE_PATH),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -14,13 +27,7 @@ class Settings(BaseSettings):
     BOT_TOKEN: str
     ADMIN_IDS: Union[List[int], str] = Field(default_factory=list)
 
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_HOST: str = "127.0.0.1"
-    POSTGRES_PORT: int = 5433
-    POSTGRES_DB: str = "olx_monitor"
     DB_ECHO: bool = False
-
     PROXY_URL: Optional[str] = None
 
     IGNORE_BUMPED_OFFERS: bool = False
@@ -59,10 +66,7 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
-            f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-        )
+        return f"sqlite+aiosqlite:///{DB_FILE_PATH.as_posix()}"
 
 
 @lru_cache(maxsize=1)

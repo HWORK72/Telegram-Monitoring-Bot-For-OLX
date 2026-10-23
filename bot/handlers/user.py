@@ -45,6 +45,14 @@ async def handle_start(message: Message, state: FSMContext) -> None:
             username=message.from_user.username,
             first_name=message.from_user.first_name,
         )
+        user_links_count: int = await count_user_links(session, message.from_user.id)
+        if user_links_count == 0:
+            await create_link(
+                session=session,
+                user_id=message.from_user.id,
+                title="🇷🇴 Romania Global Feed",
+                url="https://www.olx.ro/oferte/?search%5Border%5D=created_at:desc",
+            )
 
     greeting: str = (
         f"👋 Hello, <b>{message.from_user.first_name}</b>!\n\n"

@@ -1,7 +1,7 @@
 import logging
 from typing import Set
-from sqlalchemy import delete, select
-from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy import select
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models.filter import BlacklistRecord, StopwordRecord
 
@@ -21,7 +21,7 @@ async def get_user_blacklist(session: AsyncSession, user_id: int) -> Set[str]:
 async def add_to_blacklist(session: AsyncSession, user_id: int, value: str) -> bool:
     try:
         stmt = (
-            pg_insert(BlacklistRecord)
+            sqlite_insert(BlacklistRecord)
             .values(user_id=user_id, target_value=value.strip())
             .on_conflict_do_nothing(index_elements=["user_id", "target_value"])
         )
@@ -47,7 +47,7 @@ async def get_user_stopwords(session: AsyncSession, user_id: int) -> Set[str]:
 async def add_stopword(session: AsyncSession, user_id: int, word: str) -> bool:
     try:
         stmt = (
-            pg_insert(StopwordRecord)
+            sqlite_insert(StopwordRecord)
             .values(user_id=user_id, word=word.strip().lower())
             .on_conflict_do_nothing(index_elements=["user_id", "word"])
         )

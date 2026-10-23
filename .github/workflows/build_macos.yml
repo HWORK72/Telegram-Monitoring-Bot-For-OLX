@@ -1,0 +1,37 @@
+name: Build MacOS Portable
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install aiosqlite pyinstaller
+
+      - name: Build portable package
+        run: |
+          python build_portable.py
+          cd dist
+          zip -r -y OLX_Monitor_MacOS_Portable.zip olx_bot
+
+      - name: Upload MacOS Portable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OLX_Monitor_MacOS_Portable
+          path: dist/OLX_Monitor_MacOS_Portable.zip
